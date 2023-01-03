@@ -1,0 +1,141 @@
+datasource postgres {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  affiliate     Json?
+  avatar        Json?
+  city          City?                  @relation(fields: [cityId], references: [id])
+  cityId        String?
+  country       Country?               @relation(fields: [countryId], references: [id])
+  countryId     String?
+  createdAt     DateTime               @default(now())
+  currency      String?
+  dateOfBirth   DateTime?
+  email         String?                @unique
+  firstName     String?
+  howDidYouHear EnumUserHowDidYouHear?
+  id            Int                    @id @default(autoincrement())
+  language      String?
+  lastName      String?
+  password      String
+  phoneNumber   String?
+  roles         Json
+  state         State?                 @relation(fields: [stateId], references: [id])
+  stateId       Int?
+  timezone      String?
+  title         String?
+  updatedAt     DateTime               @updatedAt
+  username      String                 @unique
+}
+
+model Order {
+  createdAt  DateTime  @default(now())
+  customer   Customer? @relation(fields: [customerId], references: [id])
+  customerId String?
+  discount   Float?
+  id         String    @id @default(cuid())
+  product    Product?  @relation(fields: [productId], references: [id])
+  productId  String?
+  quantity   Int?
+  totalPrice Int?
+  updatedAt  DateTime  @updatedAt
+}
+
+model Customer {
+  address   Address? @relation(fields: [addressId], references: [id])
+  addressId String?
+  createdAt DateTime @default(now())
+  email     String?
+  firstName String?
+  id        String   @id @default(cuid())
+  lastName  String?
+  orders    Order[]
+  phone     String?
+  updatedAt DateTime @updatedAt
+}
+
+model Address {
+  address_1 String?
+  address_2 String?
+  city      String?
+  createdAt DateTime   @default(now())
+  customers Customer[]
+  id        String     @id @default(cuid())
+  state     String?
+  updatedAt DateTime   @updatedAt
+  zip       Int?
+}
+
+model Product {
+  createdAt   DateTime @default(now())
+  description String?
+  id          String   @id @default(cuid())
+  itemPrice   Float?
+  name        String?
+  orders      Order[]
+  updatedAt   DateTime @updatedAt
+}
+
+model Country {
+  cities           City[]
+  code             String?
+  createdAt        DateTime @default(now())
+  createdBy        Int?
+  currencyCode     String?
+  id               String   @id @default(cuid())
+  isActive         Boolean?
+  name             String?
+  phoneCallingCode String?
+  states           State[]
+  updatedAt        DateTime @updatedAt
+  updatedBy        Int?
+  users            User[]
+}
+
+model State {
+  cities    City[]
+  code      String?
+  country   Country? @relation(fields: [countryId], references: [id])
+  countryId String?
+  createdAt DateTime @default(now())
+  createdBy Int?
+  id        Int      @id @default(autoincrement())
+  isActive  Boolean?
+  name      String?
+  updatedAt DateTime @updatedAt
+  updatedBy Int?
+  users     User[]
+}
+
+model City {
+  code      String?
+  country   Country? @relation(fields: [countryId], references: [id])
+  countryId String?
+  createdAt DateTime @default(now())
+  id        String   @id @default(cuid())
+  latitude  String?
+  name      String?
+  state     State?   @relation(fields: [stateId], references: [id])
+  stateId   Int?
+  updatedAt DateTime @updatedAt
+  users     User[]
+}
+
+enum EnumUserHowDidYouHear {
+  Google
+  Facebook
+  Instagram
+  Tiktok
+  Medium
+  Youtube
+  Referral
+  Email
+  Conference
+  Other
+}
